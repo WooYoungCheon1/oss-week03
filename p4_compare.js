@@ -44,3 +44,30 @@ if (names.length === 0) {
 //   2. const results = await Promise.allSettled(...)
 //   3. fulfilled / rejected 로 나눔
 //   4. max 내림차순 정렬 → `${i + 1}. ${city.padEnd(8)} ${max.toFixed(1)}` → 실패는 `✗ ${name}: ${message}`
+  const jobs = names.map(async (n)=>{
+    const place = await geocode(n);
+    const fc = await forecast(place);
+    return {city: place.name, max: fc.days[0].max };
+  });
+
+  const results = await Promise.allSettled(jobs);
+
+  const ok = results
+    .filter((r) => r.status === "fulfilled")
+    .map((r) => r.value)
+    .sort((a, b) => b.max - a.max);
+
+  const failed = results
+    .map((r, i) => ({r, name: names[i] }))
+    .filter(({ r }) => r.status === "rejected");
+
+  ok.forEach((row, i) =>{
+    const s = row.max.toFixed(1);
+    const max = s;
+    console.log(`${i + 1}. ${row.city.padEnd(8)} ${max}`);
+
+  });
+
+  for(const {r, name} of failed){
+    console.log(`✗ ${name}: ${r.reason.message}`);
+  }
