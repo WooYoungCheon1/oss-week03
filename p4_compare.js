@@ -31,6 +31,7 @@
 //
 // 커밋 메시지: p4: compare cities
 
+import chalk from "chalk";
 import { geocode, forecast } from "./p3_weather.js";
 
 const names = process.argv.slice(2);
@@ -63,8 +64,8 @@ if (names.length === 0) {
 
   ok.forEach((row, i) =>{
     const s = row.max.toFixed(1);
-    const max = s;
-    console.log(`${i + 1}. ${row.city.padEnd(8)} ${max}`);
+    const max = row.max >= 30 ? chalk.red(s) : row.max < 10 ? chalk.blue(s) : s;
+    console.log(`${i + 1}. ${chalk.bold(row.city.padEnd(8))} ${max}`);
 
   });
 
